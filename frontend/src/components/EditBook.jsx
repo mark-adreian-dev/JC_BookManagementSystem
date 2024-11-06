@@ -30,7 +30,7 @@ const EditBook = () => {
             })
             setIsLoaded(true)
         });
-      }, [BookID]);
+    }, [BookID]);
     
     if (!book) {
         return <h1>Loading...</h1>;
@@ -48,14 +48,14 @@ const EditBook = () => {
         event.preventDefault() 
 
         for (const [value] of Object.entries(formValues)) {
-            if (value == "" ) {
+            if (value == "") {
                 alert("Do not leave any fields empty")
                 return
             }
         }
 
         const payload = {
-            
+            BookId: BookID,
             title: formValues.title,
             author: formValues.author,
             published_year: Number(formValues.published_year),
@@ -67,29 +67,22 @@ const EditBook = () => {
         console.log(payload)
 
         fetch(`http://localhost:8000/api/books/${BookID}`, {
-             method: "PUT", 
-             headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-             
-            
+            method: "PUT", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),   
         })
         .then(response => response.json())
         .then(response => {
             alert(`${response.message}`)
             window.location.href = `/books/${BookID}`
         })
-        .catch(err => console.log(err))
-
+        .catch(err => console.log(err
+        ))
     }
 
     return (
         <>
-        
-       
         <div className="w-screen h-screen flex justify-center items-center flex-col">
-       
         <form className="w-[550px] p-7 bg-red-950 drop-shadow-lg rounded-lg">
         <h1 className="text-white text-center font-bold text-5xl mb-16">Edit details</h1>
             {

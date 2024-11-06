@@ -32,24 +32,28 @@ class BookController
      */
     public function store(Request $request)
     {   
-        $validator = Validator::make($request->all(),[
+       
+
+        $validator = Validator::make($request -> all(),[
             'title' => 'required|string|max:255',
             'author' => 'required|string',
             'publised_year' => 'integer',
             'genre' => 'required|string',
             'description' => 'required'
         ]);
+
   
         if($validator -> fails()){
             return response()->json(['error' => $validator->messages()], 422);
         }
         $book = Book::create([
-            'title' => $request-> input('title') ,
-            'author' => $request->input('author'),
-            'published_year' => $request-> input('published_year'),
+            'title' => $request -> input('title'),
+            'author' => $request -> input('author'),
+            'published_year'=> $request -> input('published_year'),
             'genre' => $request->input('genre'),
-            'description' => $request->input('description')
+            'description' => $request -> input('description')
         ]);
+      
 
         return response()->json([
             'message' => `The book is successfully added`,
@@ -63,38 +67,43 @@ class BookController
      */
     public function update(Request $request, Book $book)
     {
-        $validator = Validator::make($request->all(),[
-            'title' => 'required|string|max:255',
-            'author' => 'required|string',
-            'published_year' => 'integer',
-            'genre' => 'required|string',
-            'description' => 'required'
-        ]);
-  
-        if($validator -> fails()){
-            return response()->json(['error' => $validator->messages()], 422);
+
+        $book = Book::find($request->input('BookId'));
+
+        if (!$book) {
+            return response()->json(['error' => 'Book not found'], 404);
+        } else {
+            $validator = Validator::make($request->all(), [
+                'title' => 'required|string|max:255',
+                'author' => 'required|string',
+                'published_year' => 'integer',
+                'genre' => 'required|string',
+                'description' => 'required'
+            ]);
+        
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->messages()], 422);
+            }
+        
+            // Update fields directly
+            $book->update($request->only(['title', 'author', 'published_year', 'genre', 'description']));
+        
+            return response() -> json([
+                'message' => 'Book updated successfully!',
+                'data' => new BookResource($book)
+            ], 200);
         }
-        $book -> update([
-            'title' => $request-> input('title') ,
-            'author' => $request->input('author'),
-            'published_year' => $request-> input('published_year'),
-            'genre' => $request->input('genre'),
-            'description' => $request->input('description')
-        ]);
-
-        return response()->json([
-            'message' => 'Book updated successfully!',
-            'data' => new BookResource($book)
-        ], 200);
-
+        
     }
    
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $book)
+    public function destroy(Request $request,  Book $book)
     {   
-        Book::destroy($book -> id);
+        $book = Book::find($request -> route('id')) ;
+        Book::destroy($request -> route('id'));
+      
         return response()->json([
             'message' => 'Book removed successfully!',
             'data' => $book -> title
